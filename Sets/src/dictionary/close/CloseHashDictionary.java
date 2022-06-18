@@ -1,87 +1,89 @@
-//package dictionary.close;
-//
-//public class CloseHashDictionary {
-//
-//    private final int SIZE_OF_NAME = 10;
-//
-//    private char[][] dictPool; // Это массив массивов - то есть массив которых хранит только имена.
-//
-//    public CloseHashDictionary(int poolSize){
-//        dictPool = new char[poolSize][];
-//    }
-//
-//    private int hashFunction(char[] name, int probeNumber){ //probeNumber - зависит от insert в зависимости от того пусто ли в позиции (нужно ли последующее повторное хэширование). Если не нужно, то probeNumber=0;
-//        int sum = probeNumber;
-//        for (int i = 0; i < name.length; i++)
-//            sum += name[i];   //Достаем код символа
-//
-//        sum = sum % dictPool.length;
-//        return  sum;
-//    }
-//
-//    public void insert(char[] name) {
-//        if (name == null || name.length > SIZE_OF_NAME)
-//            return;
-//
-//        int hash = hashFunction(name, 0); // 0 - (поскольку неизвестно нужно повторное или нет)
-//        int probeCount = 0;
-//        int deletedPos = -1;
-//
-//        if (dictPool[hash] == null) { //Если в массиве нет массива
-//            dictPool[hash] = new char[SIZE_OF_NAME];
-//            copyCharArray(name, dictPool[hash]);
-//            return;
-//
-//        } else { //Если в массиве либо было что-то удалено либо что-то еще есть
-//
-//            if(isDeleted(dictPool[hash])){ //Если уже есть элемент, то
-//                copyCharArray(name, dictPool[hash]);
-//            } else {
-//
-//                while(){
-//
-//
-//                }
-//            }
-//
-//
-//        }
-//
-////        if (deletedPos == -1 && isDeleted(dictPool[hash]))
-////            deletedPos = hash;
-////        else hash = hashFunction(name, probeCount++);
-////
-////        if (deletedPos != -1) {
-////            copyCharArray(name, dictPool[deletedPos]);
-////        }
-//    }
-//
-//    private boolean isDeleted(char[] name){
-//        return name[0] == '\u0000';
-//    }
-//
-//    private void copyCharArray(char[] from, char[] into){
-//        for (int i = 0; i < from.length; i++)
-//            into[i]=from[i];
-//    }
-//
-//    public void printDictionary(){
-//        for (int i = 0; i < dictPool.length; i++)
-//            printName(dictPool[i]);
-//    }
-//
-//    private void printName(char[] name) {
-//        if(name == null)
-//            return;
-//
-//        int counter = 0;
-//        System.out.print("Element: ");
-//        for (int i = 0; i < name.length; i++)
-//            if (name[i] != '\u0000')
-//                System.out.print(name[i]);
-//            else counter++;
-//
-//        if (counter != 10) System.out.println();
-//    }
-//
-//}
+package dictionary.close;
+
+public class CloseHashDictionary {
+
+    private Element[] dictPool;
+    final int NAME_SIZE=10;
+
+    public CloseHashDictionary(int poolSize){
+        dictPool = new Element[poolSize];
+    }
+
+    class Element{
+        boolean isDeleted;
+
+        char[] name;
+
+        public Element(char[] name){
+            this.name = new char[NAME_SIZE];
+            copyCharArray(name, this.name);
+            isDeleted=false;
+        }
+
+        public void printElement() {
+            for (int i = 0; i < NAME_SIZE; i++)
+                System.out.print(this.name[i]);
+        }
+    }
+
+    public void insert(char[] name){
+        if(name == null || name.length > NAME_SIZE)
+            return;
+
+        int hash = hashFunction(name, 0); // 0 - (поскольку неизвестно нужно повторное или нет)
+
+        if (dictPool[hash] == null) {
+            dictPool[hash] = new Element(name);
+            copyCharArray(name,dictPool[hash].name);
+            return;
+        }
+
+        if(dictPool[hash].isDeleted){ //Если элемент есть но удалены данные из него
+            dictPool[hash].isDeleted=false;
+            copyCharArray(name, dictPool[hash].name);
+            return;
+        }
+
+        int newHash = hashFunction(name, hash+1);
+        while(newHash!=hash){
+            if (dictPool[newHash] == null) {
+                dictPool[newHash] = new Element(name);
+                copyCharArray(name,dictPool[newHash].name);
+                return;
+            }
+            if(dictPool[newHash].isDeleted){ //Если элемент есть но удалены данные из него
+                dictPool[newHash].isDeleted=false;
+                copyCharArray(name, dictPool[newHash].name);
+                return;
+            }
+            newHash = hashFunction(name,newHash+1);
+        }
+        System.out.println("Словарь полон! Невозможно вставить");
+    }
+
+    private void copyCharArray(char[] from, char[] into){
+        for (int i = 0; i < from.length; i++)
+            into[i]=from[i];
+    }
+
+    private int hashFunction(char[] name, int probeNumber){ //probeNumber - зависит от insert в зависимости от того пусто ли в позиции (нужно ли последующее повторное хэширование). Если не нужно, то probeNumber=0;
+        int sum = probeNumber;
+        for (int i = 0; i < name.length; i++)
+            sum += name[i];   //Достаем код символа
+
+        sum = sum % dictPool.length;
+        return  sum;
+    }
+
+    public void printDict(){
+        for (int i = 0; i < dictPool.length; i++) {
+            if (dictPool[i]==null){
+                System.out.println("Element "+i+" : NULL");
+                continue;
+            }
+            System.out.print("Element "+i+" : ");
+            dictPool[i].printElement();
+        }
+    }
+
+}

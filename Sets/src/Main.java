@@ -1,7 +1,4 @@
-import dictionary.close.CloseHash;
-import sets.binaryvector.ArraySet;
-import sets.binaryvector.ArraySetException;
-import dictionary.open.OpenHashDictionary;
+import dictionary.close.CloseHashDictionary;
 
 public class Main {
     public static void main(String[] args){
@@ -12,7 +9,7 @@ public class Main {
         char[] xy = new char[]{'x','y'};
         char[] yx = new char[]{'y','x'};
 
-        CloseHash dict = new CloseHash(10);
+        CloseHashDictionary dict = new CloseHashDictionary(10);
 
         dict.insert(an);
         dict.insert(an);
